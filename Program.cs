@@ -13,6 +13,7 @@ sp.GetRequiredService<IOptions<Assessment2DatabaseSetting>>().Value);
 
 
 builder.Services.AddScoped<IPlayersServices, PlayersServices>();
+builder.Services.AddScoped<ICharactersServices, CharactersServices>();
 
 
 
