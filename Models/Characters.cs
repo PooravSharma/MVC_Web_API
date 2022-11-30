@@ -17,7 +17,7 @@ namespace MVC_web.Models
         public string Class { get; set; } = string.Empty;
 
         [BsonElement("avatar")]
-        public string? Primary_Character { get; set; } = string.Empty;
+        public string? Avatar { get; set; } = string.Empty;
 
 
 

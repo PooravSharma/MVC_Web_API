@@ -3,6 +3,7 @@ using MongoDB.Driver;
 using Microsoft.AspNetCore.Mvc;
 using System.Numerics;
 using System.Reflection.Emit;
+using System.Collections.Immutable;
 
 namespace MVC_web.Services
 {
@@ -73,9 +74,11 @@ namespace MVC_web.Services
              var sortedExistingPlayers = existingPlayers.OrderBy(player => player.Rank).ToList();
             foreach (var existPlayer in sortedExistingPlayers)
             {
-                if (existPlayer.Rank.Equals(players.Rank))
+                if (existPlayer.Rank.Equals(players.Rank) && existPlayer.Id != players.Id)
                 {
-                    existPlayer.Rank = int.Parse(existPlayer.Rank.ToString()) + 1;
+                    int id = existPlayer.Id;
+                    existPlayer.Rank = existPlayer.Rank + 1;
+                    _Players.ReplaceOne(existPlayer => existPlayer.Id == id, existPlayer);
                     players = existPlayer;
                 }
 
@@ -86,6 +89,18 @@ namespace MVC_web.Services
         {       int id = player.Id;
             _Players.ReplaceOne(player => player.Id == id, player);
             return ("Player with Id = "+player.Id+ " has been updated");
+        }
+       public List<Players> Get_Charactertime_Primary()
+       {
+            var player = _Players.Find(players => true).ToList();
+            var sortedplayers = player.OrderByDescending(player => player.Primary_Character_PlayTime).ToList();
+            return sortedplayers;
+       }
+        public List<Players> Get_Charactertime_Secondary()
+        {
+            var player = _Players.Find(players => true).ToList();
+            var sortedplayers = player.OrderByDescending(player => player.Secondary_Character_PlayTime).ToList();
+            return sortedplayers;
         }
     }
 }

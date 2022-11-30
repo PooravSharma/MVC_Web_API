@@ -15,7 +15,8 @@ namespace MVC_web.Services
         string TopRank(Players player);
 
         List<Players> Get_Player_Rank();
-
+        List<Players> Get_Charactertime_Primary();
+        List<Players> Get_Charactertime_Secondary();
         void PlayerRanker(Players player);
 
         string Update_Multiple(Players player);

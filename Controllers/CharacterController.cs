@@ -35,7 +35,7 @@ namespace MVC_web.Controllers
             if (character == null)
             {
                 return NotFound($"Character with the ID = {id} not found");
-            }          
+            }
             return character;
 
         }
@@ -49,7 +49,7 @@ namespace MVC_web.Controllers
             {
                 return NotFound($"Character with the id = " +existingCharacter.Id+ " already exists");
             }
-          
+            characterServices.Create(character);
             return CreatedAtAction(nameof(Get), new { id = character.Id }, character);
 
         }
@@ -63,8 +63,8 @@ namespace MVC_web.Controllers
             if (existingPlayer == null)
             {
                 return NotFound($"Character with Id = {id} not found");
-            }         
-           
+            }
+
             return NoContent();
         }
 
@@ -80,7 +80,25 @@ namespace MVC_web.Controllers
 
             characterServices.Delete_with_ID(character.Id);
 
-            return Ok($"Player with Id = {id} deleted");
+            return Ok($"Character with Id = {id} deleted");
+        }
+
+        // DELETE api/<CharacterController>/5
+        [HttpDelete("Delete Multiple")]
+        public ActionResult DeleteMultiple(int[] characterIds)
+        {
+            foreach (var id in characterIds)
+            {
+                var character = characterServices.Get_with_ID(id);
+                if (character == null)
+                {
+                    return NotFound($"Character with Id = {id} not found");
+                }
+
+                characterServices.Delete_with_ID(character.Id);
+                               
+            }
+            return NoContent();
         }
     }
 }

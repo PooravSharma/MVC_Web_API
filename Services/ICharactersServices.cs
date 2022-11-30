@@ -6,10 +6,12 @@ namespace MVC_web.Services
     {
         List<Characters> GetAll();
         Characters Get_with_ID(int id);
-        Characters Create(Characters player);
+        Characters Create(Characters character);
 
         string Update_with_ID(int id, Characters character);
 
         string Delete_with_ID(int id);
+
+      
     }
 }

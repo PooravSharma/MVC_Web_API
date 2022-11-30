@@ -11,10 +11,11 @@ namespace MVC_web.Controllers
     public class PlayerController : ControllerBase
     {
         private readonly IPlayersServices playersServices;
-
-        public PlayerController(IPlayersServices playersServices)
+        private readonly ICharactersServices characterServices;
+        public PlayerController(IPlayersServices playersServices, ICharactersServices characterServices)
         {
             this.playersServices=playersServices;
+            this.characterServices=characterServices;
         }
 
 
@@ -50,6 +51,9 @@ namespace MVC_web.Controllers
         public ActionResult<Players> Post([FromBody] Players players)
         {
             Players existingPlayer = playersServices.Get_with_ID(players.Id);
+            List<Characters> characterList = characterServices.GetAll();
+            Characters characterName = characterList.Find((character => character.Name == players.Primary_Character));
+            Characters characterName2 = characterList.Find((character => character.Name == players.Secondary_Character));
             if (existingPlayer != null)
             {
                 return NotFound($"Players with the id = " +players.Id+ " already exists");
@@ -59,12 +63,22 @@ namespace MVC_web.Controllers
             {
                 return NotFound($"Players with rank = 0 cannot be made");
             }
-
-
+            if (characterName is null)
+            {
+                return NotFound($"That Character does not exist");
+            }
+            if (characterName2 is null)
+            {
+                return NotFound($"That Character does not exist");
+            }
             playersServices.Create(players);
             playersServices.TopRank(players);
             playersServices.PlayerRanker(players);
             return CreatedAtAction(nameof(Get), new { id = players.Id }, players);
+
+
+
+
 
         }
 
@@ -73,7 +87,9 @@ namespace MVC_web.Controllers
         public ActionResult Put(int id, [FromBody] Players players)
         {
             var existingPlayer = playersServices.Get_with_ID(id);
-
+            List<Characters> characterList = characterServices.GetAll();
+            Characters characterName = characterList.Find((character => character.Name == players.Primary_Character));
+            Characters characterName2 = characterList.Find((character => character.Name == players.Secondary_Character));
             if (existingPlayer == null)
             {
                 return NotFound($"Players with Id = {id} not found");
@@ -82,12 +98,20 @@ namespace MVC_web.Controllers
             {
                 return NotFound($"Players with rank = 0 cannot be made");
             }
+            if (characterName is null)
+            {
+                return NotFound($"That Character does not exist");
+            }
+            if (characterName2 is null)
+            {
+                return NotFound($"That Character does not exist");
+            }
 
             playersServices.Update_with_ID(id, players);
             playersServices.TopRank(players);
             playersServices.PlayerRanker(players);
             return NoContent();
-        }     
+        }
 
 
         // DELETE api/<PlayerController>/5
@@ -108,25 +132,45 @@ namespace MVC_web.Controllers
         [HttpPut("Update multiple Players")]
         public ActionResult<Players> Put_Many([FromBody] Players[] playerList)
         {
-            foreach (var player in playerList)
+            foreach (var players in playerList)
             {
-
-                if (player == null)
+                List<Characters> characterList = characterServices.GetAll();
+                Characters characterName = characterList.Find((character => character.Name == players.Primary_Character));
+                Characters characterName2 = characterList.Find((character => character.Name == players.Secondary_Character));
+                if (players == null)
                 {
                     return NotFound($"Players not found");
                 }
-                if (player.Rank.Equals(0))
+                if (players.Rank.Equals(0))
                 {
                     return NotFound($"Players with rank = 0 cannot be made");
                 }
-
-                playersServices.Update_Multiple(player);
-                playersServices.TopRank(player);
-                playersServices.PlayerRanker(player);
-                return Ok("Player with the Id = "+ player.Id +" has been updated");
+                if (characterName is null)
+                {
+                    return NotFound($"That Character does not exist");
+                }
+                if (characterName2 is null)
+                {
+                    return NotFound($"That Character does not exist");
+                }
+                playersServices.Update_Multiple(players);
+                playersServices.TopRank(players);
+                playersServices.PlayerRanker(players);
+                // return Ok("Player with the Id = "+ player.Id +" has been updated");
             }
             return NoContent();
 
+        }
+
+        [HttpGet("Sort by Primary Character Play time")]
+        public ActionResult<List<Players>> CharacterPlaytime_Primary()
+        {
+            return playersServices.Get_Charactertime_Primary();
+        }
+        [HttpGet("Sort by Secondary Character Play time")]
+        public ActionResult<List<Players>> CharacterPlaytime_Secondary()
+        {
+            return playersServices.Get_Charactertime_Secondary();
         }
 
     }
